@@ -36,6 +36,14 @@ INSTALLED_APPS = [
     'channels',
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://chakri-r0kn.onrender.com',
+]
+
+CSRF_COOKIE_SECURE = False  # Disables secure cookie flag
+CSRF_COOKIE_HTTPONLY = False  # Allows JavaScript access to CSRF cookie
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
