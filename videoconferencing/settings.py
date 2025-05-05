@@ -10,7 +10,7 @@ SECRET_KEY = config('SECRET_KEY', default='lbcb=-2wr8a1c1udm+l(9vravc8me(+63p9^+
 
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*',"https://chakri-r0kn.onrender.com"]
 
 # settings.py
 CHANNEL_LAYERS = {
