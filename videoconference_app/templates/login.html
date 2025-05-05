@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Login Form</title>
+  <link rel="shortcut icon" href="https://st1.zoom.us/homepage/publish/zoom.ico">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #1e1e2f, #0077b6); color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+  <div class="container" style="max-width: 450px; width: 90%; background: #fff; border-radius: 10px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); transition: transform 0.3s, box-shadow 0.3s;">
+    <div class="login form" style="padding: 2rem;">
+      <header style="font-size: 2rem; font-weight: 600; text-align: center; margin-bottom: 1.5rem; color: #333;">Login</header>
+      <form action="{% url 'login' %}" method="POST" style="display: flex; flex-direction: column; gap: 1.2rem;">
+        {% csrf_token %}
+        <input type="text" placeholder="Enter your email" name="email" 
+          style="height: 40px; width: 99%; padding: 0 5px; font-size: 16px; border: 1px solid #ddd; border-radius: 6px; background: #f8f8f8; color: #333; outline: none; transition: border-color 0.3s, box-shadow 0.3s; cursor: text; align-self: center;" 
+          onfocus="this.style.borderColor='#0077b6'; this.style.boxShadow='0 0 5px rgba(0, 119, 182, 0.8)';" 
+          onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none';">
+        <input type="password" placeholder="Enter your password" name="password" 
+          style="height: 40px; width: 100%; padding: 0 5px; font-size: 16px; border: 1px solid #ddd; border-radius: 6px; background: #f8f8f8; color: #333; outline: none; transition: border-color 0.3s, box-shadow 0.3s; cursor: text;" 
+          onfocus="this.style.borderColor='#0077b6'; this.style.boxShadow='0 0 5px rgba(0, 119, 182, 0.8)';" 
+          onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none';">
+        <input type="submit" class="button" value="Login" 
+          style="height: 40px; background: #0077b6; color: #fff; font-size: 1rem; font-weight: 500; border-radius: 8px; border: none; cursor: pointer; transition: background 0.3s, transform 0.3s;" 
+          onmouseover="this.style.background='#005f8a'; this.style.transform='scale(1.05)';" 
+          onmouseout="this.style.background='#0077b6'; this.style.transform='scale(1)';">
+        <center>
+          {% if success %}
+          <p style="color: green; font-size: 1rem; font-weight: bold;">{{ success }}</p>
+          {% endif %}
+          {% if error %}
+          <p style="color: red; font-size: 1rem;">{{ error }}</p>
+          {% endif %}
+        </center>
+      </form>
+      <div class="signup" style="text-align: center; margin-top: 1rem; font-size: 16px;">
+        <span>Don't have an account? 
+          <a href="{% url 'register' %}" 
+            style="color: #0077b6; text-decoration: none; transition: color 0.3s;" 
+            onmouseover="this.style.color='#005f8a'; this.style.textDecoration='underline';" 
+            onmouseout="this.style.color='#0077b6'; this.style.textDecoration='none';">
+            Signup
+          </a>
+        </span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

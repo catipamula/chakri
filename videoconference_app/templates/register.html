@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Signup Form</title>
+  <link rel="shortcut icon" href="https://st1.zoom.us/homepage/publish/zoom.ico">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #1e1e2f, #0077b6); color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh;">
+  <div class="container" style="width: 90%; max-width: 450px; background: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); overflow: hidden; transition: transform 0.3s, box-shadow 0.3s;">
+    <div class="registration form" style="padding: 2rem;">
+      <header style="font-size: 2rem; font-weight: bold; text-align: center; margin-bottom: 1.5rem; color: #333;">Signup</header>
+      <form action="{% url 'register' %}" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
+        {% csrf_token %}
+        <input type="text" name="first_name" placeholder="Enter your first name" style="height: 50px; font-size: 1rem; padding: 0 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; color: #333; outline: none; transition: all 0.3s;">
+        <input type="text" name="last_name" placeholder="Enter your last name" style="height: 50px; font-size: 1rem; padding: 0 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; color: #333; outline: none; transition: all 0.3s;">
+        <input type="text" name="email" placeholder="Enter your email" style="height: 45px; font-size: 1rem; padding: 0 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; color: #333; outline: none; transition: all 0.3s;">
+        <input type="password" name="password1" placeholder="Create a password" style="height: 45px; font-size: 1rem; padding: 0 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; color: #333; outline: none; transition: all 0.3s;">
+        <input type="password" name="password2" placeholder="Confirm your password" style="height: 50px; font-size: 1rem; padding: 0 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; color: #333; outline: none; transition: all 0.3s;">
+        <input type="submit" class="button" value="Signup" style="height: 50px; font-size: 1rem; font-weight: 500; color: #fff; background: #009579; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; transform: scale(1); box-shadow: 0 4px 6px rgba(0, 149, 121, 0.3);">
+        <center>
+          {% if error %}
+          <p style="color: red; font-size: 0.9rem;">{{ error }}</p>
+          {% endif %}
+        </center>
+      </form>
+      <div class="signup" style="margin-top: 1rem; text-align: center;">
+        <span style="font-size: 0.9rem; color: #666;">Already have an account? 
+          <a href="{% url 'login' %}" style="color: #009579; text-decoration: none; transition: color 0.3s;">Signin</a>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    input:focus {
+      border-color: #009579 !important;
+      box-shadow: 0 0 5px rgba(0, 149, 121, 0.8);
+    }
+
+    input.button:hover {
+      background: #006653;
+      transform: scale(1.05);
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    a:hover {
+      color: #006653;
+      text-decoration: underline;
+    }
+  </style>
+</body>
+</html>

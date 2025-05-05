@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Zoom | Dashboard</title>
+<link rel="shortcut icon" href="https://st1.zoom.us/homepage/publish/zoom.ico">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #1e1e2f, #0077b6); color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh;">
+
+    <div class="dashboard" style="text-align: center; padding: 2rem; background-color: #ffffff; border-radius: 10px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); max-width: 400px; width: 90%; transition: transform 0.3s, box-shadow 0.3s;">
+        <h1 style="font-size: 2.5rem; font-weight: bold; color: #2c3e50; margin-bottom: 2rem;">Welcome, {{name}}!</h1>
+        
+        <!-- <a href="{% url 'meeting' %}" class="button" style="display: block; margin: 10px auto; padding: 12px 24px; background: #3498db; color: white; text-decoration: none; font-size: 1rem; font-weight: 500; border-radius: 6px; transition: background 0.3s, transform 0.3s; cursor: pointer; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.5);">
+            New Meeting
+        </a>
+         -->
+        <a href="{% url 'random_call' %}" class="button"
+            style="display: block; margin: 10px auto; padding: 12px 24px; background: #3498db; color: white; text-decoration: none; font-size: 1rem; font-weight: 500; border-radius: 6px; transition: background 0.3s, transform 0.3s; cursor: pointer; box-shadow: 0 4px 10px rgba(142, 68, 173, 0.5);">
+            New Meeting
+        </a>
+
+        <a href="{% url 'join_room' %}" class="button" style="display: block; margin: 10px auto; padding: 12px 24px; background: #3498db; color: white; text-decoration: none; font-size: 1rem; font-weight: 500; border-radius: 6px; transition: background 0.3s, transform 0.3s; cursor: pointer; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.5);">
+            Join Meeting
+        </a>
+       
+        <a href="{% url 'logout' %}" class="button" style="display: block; margin: 10px auto; padding: 12px 24px; background: red; color: white; text-decoration: none; font-size: 1rem; font-weight: 500; border-radius: 6px; transition: background 0.3s, transform 0.3s; cursor: pointer; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.5);">
+            Logout
+        </a>
+    </div>
+
+    <script>
+        // Animation effect for the dashboard on hover
+        const dashboard = document.querySelector('.dashboard');
+        dashboard.addEventListener('mouseenter', () => {
+            dashboard.style.transform = 'scale(1.02)';
+            dashboard.style.boxShadow = '0 12px 24px rgba(0, 0, 0, 0.5)';
+        });
+
+        dashboard.addEventListener('mouseleave', () => {
+            dashboard.style.transform = 'scale(1)';
+            dashboard.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.3)';
+        });
+    </script>
+</body>
+</html>

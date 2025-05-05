@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Call</title>
+    <link rel="shortcut icon" href="https://st1.zoom.us/homepage/publish/zoom.ico">
+    <style>
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
+    <script>
+        window.onload = function () {
+            function getUrlParams(url) {
+                let urlStr = url.split('?')[1];
+                const urlSearchParams = new URLSearchParams(urlStr);
+                const result = Object.fromEntries(urlSearchParams.entries());
+                return result;
+            }
+
+            const params = getUrlParams(window.location.href);
+            const roomID = params['roomID'];
+            const userID = Math.floor(Math.random() * 10000) + "";
+            const userName = "{{ name }}";
+            const appID = 2028868635; // change this
+            const serverSecret = "f57b818176b3c2dca1f04345c7e52c92"; // change this
+            const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
+
+            const zp = ZegoUIKitPrebuilt.create(kitToken);
+            zp.joinRoom({
+                container: document.querySelector("#root"),
+                sharedLinks: [{
+                    name: 'Personal link',
+                    url: window.location.protocol + '//' + window.location.host + window.location.pathname + '?roomID=' + roomID,
+                }],
+                scenario: {
+                    mode: ZegoUIKitPrebuilt.VideoConference,
+                },
+                turnOnMicrophoneWhenJoining: false,
+                turnOnCameraWhenJoining: false,
+                showMyCameraToggleButton: true,
+                showMyMicrophoneToggleButton: true,
+                showAudioVideoSettingsButton: true,
+                showScreenSharingButton: true,
+                showTextChat: true,
+                showUserList: true,
+                maxUsers: 1500,
+                layout: "Grid",
+                showLayoutButton: true,
+            });
+
+            // Leave room and notify server
+            window.onbeforeunload = function() {
+                fetch(`/leave_room/${roomID}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    credentials: 'same-origin'
+                });
+            };
+        }
+        // Let's assume you already have connected to the websocket:
+            const websocket_url = `ws://${window.location.host}/ws/video/`
+            const socket = new WebSocket(websocket_url);
+
+            // Helper function to send messages
+            function sendMessage(message) {
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.send(message);
+                } else {
+                    console.error("WebSocket connection not open");
+                }
+            }
+
+            socket.onmessage = (event) => {
+                const data = event.data;
+                // Check if data is a string
+                if (typeof data === 'string') {
+                    try {
+                        const message = JSON.parse(data);
+                        // Call the corresponding handler based on message type
+                        if (message.type === 'raise-hand') {
+                            handleRaiseHandStatus(data)
+                        } else if (message.type === 'emoji') {
+                            handleEmojiMessage(data)
+                        }
+                    } catch (e) {
+                        console.log("Error parsing json: ", e)
+                    }
+                }
+
+            }
+
+            let raisedHands = new Map(); // userId -> true/false
+
+            // Send a message to all other participants about raise hand status.
+            function sendRaiseHandStatus(userId, isRaised) {
+                const raiseHandStatus = {
+                    type: 'raise-hand',
+                    userId: userId,
+                    raised: isRaised
+                };
+                sendMessage(JSON.stringify(raiseHandStatus));
+            }
+
+
+            // Handling incoming messages to update raise hand status of others.
+            function handleRaiseHandStatus(message) {
+                const data = JSON.parse(message);
+
+                if (data.type === 'raise-hand') {
+                    const { userId, raised } = data;
+                    raisedHands.set(userId, raised);
+                    updateRaisedHandUI();
+                }
+            }
+
+            // Update UI to display raised hands
+            function updateRaisedHandUI() {
+                // Use raisedHands Map to update UI on each participant’s side based on userId and whether he has raised his hand or not.
+                console.log('Raised hands: ', raisedHands)
+
+                for (let userId of raisedHands.keys()) {
+                    let userDomEl = document.querySelector(`#user-video-${userId}`);
+                    if (userDomEl) {
+                        let existingRaisedHandEl = userDomEl.querySelector('.raised-hand-icon');
+                        if (raisedHands.get(userId)) {
+                            // Create the raise hand icon element if it doesn't exists
+                            if (!existingRaisedHandEl) {
+                                let raiseHandEl = document.createElement('span');
+                                raiseHandEl.innerHTML = `✋`;
+                                raiseHandEl.classList.add('raised-hand-icon');
+                                userDomEl.appendChild(raiseHandEl);
+                            }
+
+                        } else {
+                            // Remove the raise hand icon element if user has put it down
+                            if (existingRaisedHandEl) {
+                                existingRaisedHandEl.remove();
+                            }
+                        }
+                    }
+
+                }
+            }
+
+
+            // Example UI Button Event Handler
+            document.getElementById('raiseHandBtn').addEventListener('click', () => {
+                const myUserId = document.querySelector('#local-video').dataset.userId
+                const isRaised = !raisedHands.get(myUserId);
+                raisedHands.set(myUserId, isRaised)
+                sendRaiseHandStatus(myUserId, isRaised);
+                updateRaisedHandUI();
+            });
+
+            // Function to send an emoji to others.
+            function sendEmoji(emoji) {
+                const emojiMessage = {
+                    type: 'emoji',
+                    emoji: emoji,
+                    userId: document.querySelector('#local-video').dataset.userId
+                };
+                sendMessage(JSON.stringify(emojiMessage));
+            }
+
+
+            // Function to handle incomming emojis.
+            function handleEmojiMessage(message) {
+                const data = JSON.parse(message);
+
+                if (data.type === 'emoji') {
+                    const { emoji, userId } = data;
+                    displayEmoji(emoji, userId)
+                }
+            }
+
+            // Display the received emoji on video element.
+            function displayEmoji(emoji, userId) {
+                let userVideoEl = document.querySelector(`#user-video-${userId}`);
+
+                if (userVideoEl) {
+                    const emojiEl = document.createElement('span')
+                    emojiEl.textContent = emoji;
+                    emojiEl.classList.add('emoji-display');
+                    userVideoEl.appendChild(emojiEl);
+
+                    setTimeout(() => {
+                        emojiEl.remove();
+                    }, 2000);
+
+                }
+
+            }
+
+            // Example Usage (assuming you have an emoji selection area)
+            document.querySelectorAll('.emoji-option').forEach(emojiButton => {
+                emojiButton.addEventListener('click', () => {
+                    const selectedEmoji = emojiButton.textContent;
+                    sendEmoji(selectedEmoji);
+                    displayEmoji(selectedEmoji, document.querySelector('#local-video').dataset.userId);
+
+                });
+            });
+            // Same variables like in the earlier example:
+                // - `localStream`: your local media stream (obtained from WebRTC)
+                // - `peerConnections`: a map of PeerConnection objects by their user ID
+
+                let mediaRecorder;
+                let recordedChunks = [];
+                let isRecording = false;
+
+                // Function to initiate recording
+                async function startRecording() {
+                    recordedChunks = [];
+                    // Create a MediaRecorder
+                    mediaRecorder = new MediaRecorder(localStream, {
+                        mimeType: 'video/webm;codecs=vp9,opus' // Or 'video/mp4;codecs=avc1,mp4a' etc
+                    });
+
+                    // Event handler to append data
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            recordedChunks.push(event.data);
+                        }
+                    }
+
+                    mediaRecorder.onstop = async () => {
+                        console.log('Recording stopped')
+
+                        let blob = new Blob(recordedChunks, { type: 'video/webm' })
+                        const fileName = `recording-${Date.now()}.webm`;
+                        const file = new File([blob], fileName, { type: "video/webm" })
+
+                        const formData = new FormData()
+                        formData.append("file", file)
+
+
+                        try {
+                            const res = await fetch('/save-recording/', {  // Update this url
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            if (res.ok) {
+                                console.log("recording uploaded successfully");
+                            }
+
+                        } catch (e) {
+                            console.log(e);
+                        }
+
+                    }
+                    mediaRecorder.start();
+                    isRecording = true;
+                    console.log('Recording started');
+
+                }
+
+                // Function to stop recording
+                function stopRecording() {
+                    if (mediaRecorder && mediaRecorder.state === "recording") {
+                        mediaRecorder.stop();
+                        isRecording = false;
+                        console.log('Stopping recording');
+                    }
+                }
+
+                // Example UI button event handler
+                document.getElementById('startRecordingBtn').addEventListener('click', () => {
+                    if (isRecording) {
+                        stopRecording();
+                    } else {
+                        startRecording();
+                    }
+
+                });
+    </script>
+</body>
+</html>

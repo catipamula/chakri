@@ -1,0 +1,5 @@
+django==5.1.1
+django-heroku
+python-decouple
+channels
+djangorestframework
